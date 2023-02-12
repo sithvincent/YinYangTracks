@@ -15,10 +15,13 @@
 //==============================================================================
 // Receive the memory address of a dj audio player and assigns it to playerPlaceholder
 DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
+                 PlaylistComponent* _playlistComponent,
                  AudioFormatManager& formatManagerToUse,
                  AudioThumbnailCache& cacheToUse) : playerPlaceholder{ _djAudioPlayer }, 
+                                                    playlistComponentPlaceholder{ _playlistComponent },
                                                     waveformDisplay(formatManagerToUse, cacheToUse), // call constructor on waveform
-                                                    isPlaying(false)
+                                                    isPlaying(false),
+                                                    vidLength(0)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -144,10 +147,19 @@ void DeckGUI::buttonClicked(Button* button) {
         fChooser.launchAsync(fileChooserFlags, 
                             [this](const FileChooser& chooser)
                             {
+                                // Gets the information from the chosen file, particularly its URL
                                 File chosenFile = chooser.getResult();
-                                DBG("The URL is" << URL{ chosenFile }.getFileName());
-                                playerPlaceholder->loadURL(URL{ chosenFile });
-                                waveformDisplay.loadURL(URL{chosenFile});
+                                URL audioURL = URL{ chosenFile };
+
+                                // Passes the URL to DJAudioPlayer and waveformDisplay to load audio and waveform graphics
+                                playerPlaceholder->loadURL(audioURL, vidLength);
+                                waveformDisplay.loadURL(audioURL);
+
+                                if (vidLength != 0) {
+                                    // Vector to store the tracktitles
+                                    playlistComponentPlaceholder->addEntry(audioURL.getFileName(), vidLength, URL{ chosenFile });
+                                    vidLength = 0;
+                                }
                             });
     }
 }   
@@ -180,7 +192,7 @@ void DeckGUI::filesDropped(const StringArray& files, int x, int y) {
     DBG("FilesDrop");
     if (files.size() == 1) {
         // Call the methods in player1 as it has been passed as a pointer to DeckGUI
-        playerPlaceholder->loadURL(URL(File{files[0]}));
+        playerPlaceholder->loadURL(URL(File{files[0]}), vidLength);
     }
 }
 
@@ -188,4 +200,9 @@ void DeckGUI::filesDropped(const StringArray& files, int x, int y) {
 // Triggered by the timer
 void DeckGUI::timerCallback() {
     waveformDisplay.setPositionRelative(playerPlaceholder->getPositionRelative());
+    if (playlistComponentPlaceholder->loadMusicIntoDeck) {
+        playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);
+        waveformDisplay.loadURL(playlistComponentPlaceholder->urlToLoad);
+        playlistComponentPlaceholder->loadMusicIntoDeck = false;
+    }
 }

@@ -54,12 +54,11 @@ class PlaylistComponent  : public juce::Component,
 
         void buttonClicked(Button* button) override;
 
-        void addEntry(String, double);
+        void addEntry(String, double, URL);
         void printTitles();
+        URL urlToLoad;
+        bool loadMusicIntoDeck;
 
-        // Vector to store the tracktitles
-        std::vector <String> trackTitles;
-        std::vector <double> trackLengths;
 
     private:
         // Main table object, uses TableListBoxModel helper functions to get information about
@@ -68,5 +67,11 @@ class PlaylistComponent  : public juce::Component,
         TableListBox tableComponent;
 
 
+        // Vector to store the tracktitles
+        std::vector <String> trackTitles;
+        std::vector <double> trackLengths;
+        std::vector <URL> trackURLs;
+
+        // MACRO
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaylistComponent)
 };

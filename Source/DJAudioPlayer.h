@@ -35,7 +35,7 @@ class DJAudioPlayer : public AudioSource
         void start();
         void stop();
         // Loads the actual file and puts it in transport source
-        void loadURL(URL audioURL);
+        void loadURL(URL audioURL, double& vidLength);
         /**Get the relative position of the playhead */
         double getPositionRelative();
 

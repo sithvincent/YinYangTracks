@@ -15,7 +15,10 @@ class DeckGUI  :public Component,
 {
     public:
         // A pointer to a player is passed into DeckGUI
-        DeckGUI(DJAudioPlayer* _djAudioPlayer, AudioFormatManager& formatManagerToUse, AudioThumbnailCache& cacheToUse);
+        DeckGUI(DJAudioPlayer* _djAudioPlayer, 
+            PlaylistComponent* _playlistComponent,
+            AudioFormatManager& formatManagerToUse, 
+            AudioThumbnailCache& cacheToUse);
         ~DeckGUI() ;
 
         // Painting and resizing
@@ -45,9 +48,14 @@ class DeckGUI  :public Component,
         Slider posSlider;
         Path playTriangle;
         bool isPlaying;
+        double vidLength;
 
         // We don't create a player, just a pointer to a player
         DJAudioPlayer* playerPlaceholder;
+
+
+        // We don't create a player, just a pointer to a player
+        PlaylistComponent* playlistComponentPlaceholder;
 
         /* Allows User to Select a File */
         FileChooser fChooser{ "Select a file..." };

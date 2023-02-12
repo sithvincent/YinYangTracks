@@ -12,7 +12,7 @@
 #include "PlaylistComponent.h"
 
 //======================CONSTRUCTOR AND DESTRUCTOR===========================
-PlaylistComponent::PlaylistComponent()
+PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false)
 {
 
     // ColumnID must start with one (somehow can't have 'getheight')
@@ -141,14 +141,18 @@ void PlaylistComponent::buttonClicked(Button* button)
     // creating them dynamically, then losing access to them. So no memory address to refer to.
     // Thus we have to do this implementation to know which button is clicked on.
     int id = std::stoi(button->getComponentID().toStdString());
+    urlToLoad = trackURLs[id];
+    loadMusicIntoDeck = true;
     DBG("PlaylistComponent::buttonClicked " << trackTitles[id]);
 }
 
 
-void PlaylistComponent::addEntry(String trackTitle, double trackLength)
+void PlaylistComponent::addEntry(String trackTitle, double trackLength, URL audioURL)
 {
     trackTitles.push_back(trackTitle);
     trackLengths.push_back(trackLength);
+    trackURLs.push_back(audioURL);
+    // Updates the table based on these new information
     tableComponent.updateContent();
 }
 

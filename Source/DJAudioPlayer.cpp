@@ -58,7 +58,7 @@ void DJAudioPlayer::stop()
     transportSource.stop();
 }
 
-void DJAudioPlayer::loadURL(URL audioURL) {
+void DJAudioPlayer::loadURL(URL audioURL, double& vidLength) {
     // This step extracts rudimentary numbers from the input
     auto* reader = formatManager.createReaderFor(audioURL.createInputStream(false));
     // This step preps the input stream for the JUCE audio lifecycle    
@@ -68,6 +68,7 @@ void DJAudioPlayer::loadURL(URL audioURL) {
         transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
         readerSource.reset(newSource.release());
 
+        vidLength = transportSource.getLengthInSeconds();
         // Pushes the information about the file into playlist's vectors
  /*       playlistComponent.addEntry(audioURL.getFileName(),
                                     transportSource.getLengthInSeconds());
