@@ -18,7 +18,8 @@ class DeckGUI  :public Component,
         DeckGUI(DJAudioPlayer* _djAudioPlayer, 
             PlaylistComponent* _playlistComponent,
             AudioFormatManager& formatManagerToUse, 
-            AudioThumbnailCache& cacheToUse);
+            AudioThumbnailCache& cacheToUse,
+            String _name);
         ~DeckGUI() ;
 
         // Painting and resizing
@@ -38,6 +39,8 @@ class DeckGUI  :public Component,
 
 
     private:
+
+        String name;
         // Buttons and Sliders
         //TextButton playButton{ "PLAY" };
         TextButton stopButton{ "STOP" };

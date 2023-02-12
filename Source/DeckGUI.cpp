@@ -17,11 +17,13 @@
 DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
                  PlaylistComponent* _playlistComponent,
                  AudioFormatManager& formatManagerToUse,
-                 AudioThumbnailCache& cacheToUse) : playerPlaceholder{ _djAudioPlayer }, 
-                                                    playlistComponentPlaceholder{ _playlistComponent },
-                                                    waveformDisplay(formatManagerToUse, cacheToUse), // call constructor on waveform
-                                                    isPlaying(false),
-                                                    vidLength(0)
+                 AudioThumbnailCache& cacheToUse, 
+                 String _name) : playerPlaceholder{ _djAudioPlayer },
+                                playlistComponentPlaceholder{ _playlistComponent },
+                                waveformDisplay(formatManagerToUse, cacheToUse), // call constructor on waveform
+                                isPlaying(false),
+                                vidLength(0),
+                                name (_name)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
@@ -200,9 +202,26 @@ void DeckGUI::filesDropped(const StringArray& files, int x, int y) {
 // Triggered by the timer
 void DeckGUI::timerCallback() {
     waveformDisplay.setPositionRelative(playerPlaceholder->getPositionRelative());
-    if (playlistComponentPlaceholder->loadMusicIntoDeck) {
-        playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);
-        waveformDisplay.loadURL(playlistComponentPlaceholder->urlToLoad);
-        playlistComponentPlaceholder->loadMusicIntoDeck = false;
+    // If the boolean for the music library button is 'true' meaning that the user wants
+    // to load a music from the library onto the deck, then pass the relevant audioURL 
+    // into the DJAudioPlayer.
+    if (playlistComponentPlaceholder->loadMusicIntoDeck) 
+    {
+        // If the music library specifies to load the track into the first deck
+        // Only triggers for the deck1 DJAudioPlayer object
+        if (this->name == "deck1" && playlistComponentPlaceholder->deckToLoad == 1)
+        {
+            playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);
+            waveformDisplay.loadURL(playlistComponentPlaceholder->urlToLoad);
+            playlistComponentPlaceholder->loadMusicIntoDeck = false;
+        }
+        // If the music library specifies to load the track into the second deck
+        // Only triggers for the deck2 DJAudioPlayer object
+        else if (this->name == "deck2" && playlistComponentPlaceholder->deckToLoad == 2)
+        {
+            playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);
+            waveformDisplay.loadURL(playlistComponentPlaceholder->urlToLoad);
+            playlistComponentPlaceholder->loadMusicIntoDeck = false;
+        }
     }
 }

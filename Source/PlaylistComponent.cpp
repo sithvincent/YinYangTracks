@@ -20,9 +20,10 @@ PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false)
     //    int(getWidth() / 2)-1
     //    int(getWidth() * 2 / 8)-1
     tableComponent.getHeader().addColumn("ID", 1, 100);
-    tableComponent.getHeader().addColumn("Track Title", 2, 400);
+    tableComponent.getHeader().addColumn("Track Title", 2, 300);
     tableComponent.getHeader().addColumn("Song Length", 3, 100);
-    tableComponent.getHeader().addColumn("Send to Deck", 4, 200);
+    tableComponent.getHeader().addColumn("Send to Deck 1", 4, 150);
+    tableComponent.getHeader().addColumn("Send to Deck 2", 5, 150);
 
     // 'This' refers to playlistComponent which already has a TableListBoxModel.
     // It registers the former and by extension the model with its functions with tableComponent.
@@ -115,19 +116,26 @@ Component* PlaylistComponent::refreshComponentForCell(int rowNumber,
         {            
             // This function can be continuously called so we don't want a new btn to be created every time
             // A pointer to an existing initialized object would do.
-            TextButton * btn1 = new TextButton("Add to Deck 1");
+            TextButton * btn1 = new TextButton("Deck 1");
             existingComponentToUpdate = btn1;
             btn1->addListener(this);
             // See purpose of these two lines in buttonClicked below.
             String id1{ std::to_string(rowNumber) };
             btn1->setComponentID(id1);
-
-            //TextButton* btn2 = new TextButton("Add to Deck 2");
-            //existingComponentToUpdate = btn2;
-            //btn2->addListener(this);
-            //// See purpose of these two lines in buttonClicked below.
-            //String id2{ std::to_string(rowNumber) };
-            //btn2->setComponentID(id2);
+            btn1->setDescription("1");
+        }
+    }
+    else if (columnId == 5)
+    {
+        // If there are no existing components (thus a nullptr), add a ptr to a button.
+        if (existingComponentToUpdate == nullptr)
+        {
+            TextButton* btn2 = new TextButton("Deck 2");
+            existingComponentToUpdate = btn2;
+            btn2->addListener(this);
+            String id2{ std::to_string(rowNumber) };
+            btn2->setComponentID(id2);
+            btn2->setDescription("2");
         }
     }
     // Returns the existingComponentToUpdate which may be modified in some places (when columnid=2)
@@ -142,6 +150,7 @@ void PlaylistComponent::buttonClicked(Button* button)
     // Thus we have to do this implementation to know which button is clicked on.
     int id = std::stoi(button->getComponentID().toStdString());
     urlToLoad = trackURLs[id];
+    deckToLoad = std::stoi(button->getDescription().toStdString());
     loadMusicIntoDeck = true;
     DBG("PlaylistComponent::buttonClicked " << trackTitles[id]);
 }
@@ -156,10 +165,10 @@ void PlaylistComponent::addEntry(String trackTitle, double trackLength, URL audi
     tableComponent.updateContent();
 }
 
-void PlaylistComponent::printTitles() {
-    DBG("Total number of track entries: " << trackTitles.size());
-    DBG("Total number of time entries: " << trackLengths.size());
-    for (double &e: trackLengths) {
-        DBG(e);
-    }
-}
+//void PlaylistComponent::printTitles() {
+//    DBG("Total number of track entries: " << trackTitles.size());
+//    DBG("Total number of time entries: " << trackLengths.size());
+//    for (double &e: trackLengths) {
+//        DBG(e);
+//    }
+//}

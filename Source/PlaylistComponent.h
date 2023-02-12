@@ -42,6 +42,7 @@ class PlaylistComponent  : public juce::Component,
         void cellClicked(int rowNumber, int columnId, const MouseEvent&) override;
 
 
+        //=============== UPDATING OF NEW ENTRIES AND REDRAW ======================
 
         // Create or update a custom component in every cell. Non abstract.
         // Called whenever a custom component might need to be updated e.g.when the table is changed.
@@ -51,21 +52,28 @@ class PlaylistComponent  : public juce::Component,
                                             bool isRowSelected,
                                             Component* existingComponentToUpdate) override;
 
-
-        void buttonClicked(Button* button) override;
-
+        // Adds an entry into the library
         void addEntry(String, double, URL);
-        void printTitles();
+
+        // The URL of the music in the library to be loaded into the deck. 
+        // Must be public because DeckGUI will access this.
         URL urlToLoad;
+        int deckToLoad;
+        // Tells DeckGUI whether there is music to be loaded into the deck.
         bool loadMusicIntoDeck;
 
+        // Dictates what to do when a button is clicked.
+        void buttonClicked(Button* button) override;
+
+
+        //void printTitles();
 
     private:
+
         // Main table object, uses TableListBoxModel helper functions to get information about
         // the data for the table and the way that data should be drawn. 
         // Need to register TableListBoxModel functions with this component.
         TableListBox tableComponent;
-
 
         // Vector to store the tracktitles
         std::vector <String> trackTitles;

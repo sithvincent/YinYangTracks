@@ -56,8 +56,11 @@ class MainComponent  :  public juce::AudioAppComponent
 
         //============================= GUI THREAD ===============================
         // Takes the reference to a DJAudioPlayer object, the format manager, and audio thumbnail
-        DeckGUI deck1{&player1, &playlistComponent, formatManager, thumbCache };
-        DeckGUI deck2{&player2, &playlistComponent, formatManager, thumbCache };
+        DeckGUI deck1{&player1, &playlistComponent, formatManager, thumbCache, "deck1"};
+        DeckGUI deck2{&player2, &playlistComponent, formatManager, thumbCache, "deck2" };
+        
+        
+        
 
 
         // It assigns a delete operation to the copy constructor.
