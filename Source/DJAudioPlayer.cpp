@@ -10,9 +10,11 @@
 
 #include <JuceHeader.h>
 #include "DJAudioPlayer.h"
+#include "PlaylistComponent.h"
 
 // The part after : is only added due to the addition of '&' to the formatManager in header file
 DJAudioPlayer::DJAudioPlayer(AudioFormatManager& formatManagerToUse) : formatManager(formatManagerToUse) 
+                                                                          //playlistComponent(playlistComponentToUse)                
 {}
 
 DJAudioPlayer::~DJAudioPlayer() 
@@ -65,6 +67,11 @@ void DJAudioPlayer::loadURL(URL audioURL) {
         std::unique_ptr<AudioFormatReaderSource> newSource(new AudioFormatReaderSource(reader, true));
         transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
         readerSource.reset(newSource.release());
+
+        // Pushes the information about the file into playlist's vectors
+ /*       playlistComponent.addEntry(audioURL.getFileName(),
+                                    transportSource.getLengthInSeconds());
+        playlistComponent.printTitles();*/
     }
     else
     {
@@ -110,6 +117,9 @@ void DJAudioPlayer::setPositionRelative(double pos) {
 }
 
 
+double getSongLength(AudioTransportSource& transportSource) {
+    return transportSource.getLengthInSeconds();
+}
 
 
 // IF YOU ARE SYNTHESIZING YOUR OWN WEIRD MUSIC

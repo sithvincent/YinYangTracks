@@ -18,7 +18,7 @@
 class MainComponent  :  public juce::AudioAppComponent
 {                      
     public:
-        //==============================================================================
+        //======================CONSTRUCTOR/DESTRUCTOR============================
         MainComponent();
         ~MainComponent() override;
 
@@ -34,6 +34,9 @@ class MainComponent  :  public juce::AudioAppComponent
 
     private:
 
+        // Playlist Component
+        PlaylistComponent playlistComponent;
+
         //=============================AUDIO THREAD===============================
         
         // To interpret audio file formats
@@ -45,7 +48,7 @@ class MainComponent  :  public juce::AudioAppComponent
 
         // DJAudio Player object (main)
         DJAudioPlayer player1{ formatManager };
-        DJAudioPlayer player2 { formatManager };
+        DJAudioPlayer player2 { formatManager};
 
         // Allows the playing of two tracks simultaneously (combines audio data of player 1 and 2)
         MixerAudioSource mixerSource;
@@ -56,8 +59,6 @@ class MainComponent  :  public juce::AudioAppComponent
         DeckGUI deck1{&player1, formatManager, thumbCache };
         DeckGUI deck2{&player2, formatManager, thumbCache };
 
-        // Playlist Component
-        PlaylistComponent playlistComponent;
 
         // It assigns a delete operation to the copy constructor.
         // this means that if you start passing this object around, you will have 

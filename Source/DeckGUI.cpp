@@ -17,22 +17,25 @@
 DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
                  AudioFormatManager& formatManagerToUse,
                  AudioThumbnailCache& cacheToUse) : playerPlaceholder{ _djAudioPlayer }, 
-                                                    waveformDisplay(formatManagerToUse, cacheToUse) // call constructor on waveform
+                                                    waveformDisplay(formatManagerToUse, cacheToUse), // call constructor on waveform
+                                                    isPlaying(false)
 {
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
 
     // Adding components and making them visible
-    addAndMakeVisible(playButton);
+    //addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
     addAndMakeVisible(loadButton);
+    addAndMakeVisible(playButtonDynamic);
     addAndMakeVisible(volSlider);
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
     addAndMakeVisible(waveformDisplay);
 
     // Adds the event listener to itself (the button, hence 'this') instead of some other things
-    playButton.addListener(this);
+    //playButton.addListener(this);
+    playButtonDynamic.addListener(this);
     stopButton.addListener(this);
     loadButton.addListener(this);
     volSlider.addListener(this);
@@ -49,6 +52,16 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     // This abstract function inherits from Timer
     startTimer(500);
 
+    /*playTriangle.addTriangle(getWidth() * 1 / 3, getHeight() * 4 / 10,
+        getWidth() * 2 / 3, getHeight() * 4 / 10,
+        getWidth() / 2, getHeight() * 2 / 10);*/
+
+    playTriangle.addTriangle(10, 20, 20, 10, 30, 20);
+
+    playButtonDynamic.setOutline(Colours::orange, 1);
+    playButtonDynamic.setShape(playTriangle, false, false, true);
+
+
     // By default the values are between 0 and 10.
     //speedSlider.setRange(0.0, 10.0);
 }
@@ -61,18 +74,25 @@ DeckGUI::~DeckGUI()
 
 void DeckGUI::paint (juce::Graphics& g)
 {    
+    // clear the background
     g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
 
-    // All the following added after crash
-    g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));   // clear the background
 
-    g.setColour(Colours::grey);
+    // Component Outline
+    g.setColour(Colours::green);
     g.drawRect(getLocalBounds(), 1);   // draw an outline around the component
 
+    // Paints the Words
     g.setColour(Colours::white);
     g.setFont(14.0f);
-    g.drawText("DeckGUI", getLocalBounds(),
-        Justification::centred, true);   // draw some placeholder text
+    g.drawText("DeckGUI", getLocalBounds(), Justification::centred, true);   
+
+    //g.setColour(juce::Colours::red);
+    //Path roof;
+    //roof.addTriangle(getWidth()*1/3, getHeight() * 4 / 10, 
+    //                 getWidth() * 2 / 3, getHeight() * 4 / 10, 
+    //                 getWidth() /2, getHeight() * 2 / 10);
+    //g.fillPath(roof);
 }
 
 void DeckGUI::resized()
@@ -81,7 +101,7 @@ void DeckGUI::resized()
     // If you add any child components, this is where you should
     // update their positions.
     double rowH = getHeight() / 8;
-    playButton.setBounds    (0, 0, getWidth(), rowH);
+    playButtonDynamic.setBounds    (0, 0, getWidth(), rowH);
     stopButton.setBounds    (0, rowH, getWidth(), rowH);
     volSlider.setBounds     (0, rowH * 2, getWidth(), rowH);
     speedSlider.setBounds   (0, rowH * 3, getWidth(), rowH);
@@ -95,10 +115,18 @@ void DeckGUI::resized()
  //This one is a callback function from the listener 
  //It is an abstract function.
 void DeckGUI::buttonClicked(Button* button) {
-    if (button == &playButton) {
-        // use dbg instead of std::cout on this non-terminal app
-        DBG("play button pressed."); 
-        playerPlaceholder->start();
+    if (button == &playButtonDynamic) {
+        if (isPlaying == false) {
+            // use dbg instead of std::cout on this non-terminal app
+            DBG("play button pressed.");
+            playerPlaceholder->start();
+            isPlaying = true;
+        }
+        else if (isPlaying == true) {
+            DBG("stop button pressed.");
+            playerPlaceholder->stop();
+            isPlaying = false;
+        }
     }
     else if(button == &stopButton){
         DBG("stop button pressed.");
@@ -117,6 +145,7 @@ void DeckGUI::buttonClicked(Button* button) {
                             [this](const FileChooser& chooser)
                             {
                                 File chosenFile = chooser.getResult();
+                                DBG("The URL is" << URL{ chosenFile }.getFileName());
                                 playerPlaceholder->loadURL(URL{ chosenFile });
                                 waveformDisplay.loadURL(URL{chosenFile});
                             });

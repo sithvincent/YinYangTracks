@@ -10,11 +10,14 @@
 
 #pragma once
 #include <JuceHeader.h>
+#include <string>
+#include "PlaylistComponent.h"
 
 class DJAudioPlayer : public AudioSource 
 {
     public:
         DJAudioPlayer(AudioFormatManager& formatManagerToUse);
+                      //PlaylistComponent& playlistComponentToUse);
         ~DJAudioPlayer();
 
         //=======================AUDIO LIFE CYCLE==========================
@@ -36,6 +39,8 @@ class DJAudioPlayer : public AudioSource
         /**Get the relative position of the playhead */
         double getPositionRelative();
 
+        
+
 
     private:
         //Main Object that that encapsulates the entire input musical file.
@@ -46,6 +51,7 @@ class DJAudioPlayer : public AudioSource
         ResamplingAudioSource resampleSource{ &transportSource, false, 2 };
         // Do not create an object - instead point to another object
         AudioFormatManager &formatManager;
+        //PlaylistComponent &playlistComponent;
         // A smart pointer that eliminates readerSource when it is out of scope.
         std::unique_ptr<AudioFormatReaderSource> readerSource;
 };

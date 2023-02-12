@@ -33,14 +33,18 @@ class DeckGUI  :public Component,
         /*This abstract function inherits from Timer*/
         void timerCallback() override;
 
+
     private:
         // Buttons and Sliders
-        TextButton playButton{ "PLAY" };
+        //TextButton playButton{ "PLAY" };
         TextButton stopButton{ "STOP" };
         TextButton loadButton{ "LOAD" };
+        ShapeButton playButtonDynamic{"boGUS", Colours::green, Colours::green, Colours::green };
         Slider volSlider;
         Slider speedSlider;
         Slider posSlider;
+        Path playTriangle;
+        bool isPlaying;
 
         // We don't create a player, just a pointer to a player
         DJAudioPlayer* playerPlaceholder;
@@ -50,6 +54,7 @@ class DeckGUI  :public Component,
 
         // Create a waveformdisplay item
         WaveformDisplay waveformDisplay;
+
 
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

@@ -2,7 +2,6 @@
 
 #include <JuceHeader.h>
 #include <vector>
-#include <string>
 
 
 class PlaylistComponent  : public juce::Component,
@@ -42,6 +41,8 @@ class PlaylistComponent  : public juce::Component,
         // Dictates what happens when you click on a cell. Non abstract.
         void cellClicked(int rowNumber, int columnId, const MouseEvent&) override;
 
+
+
         // Create or update a custom component in every cell. Non abstract.
         // Called whenever a custom component might need to be updated e.g.when the table is changed.
         // Pointer to the component of each cell (existingComponentToUpdate) is auto passed in.
@@ -53,6 +54,12 @@ class PlaylistComponent  : public juce::Component,
 
         void buttonClicked(Button* button) override;
 
+        void addEntry(String, double);
+        void printTitles();
+
+        // Vector to store the tracktitles
+        std::vector <String> trackTitles;
+        std::vector <double> trackLengths;
 
     private:
         // Main table object, uses TableListBoxModel helper functions to get information about
@@ -60,8 +67,6 @@ class PlaylistComponent  : public juce::Component,
         // Need to register TableListBoxModel functions with this component.
         TableListBox tableComponent;
 
-        // Vector to store the tracktitles
-        std::vector <std::string> trackTitles;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaylistComponent)
 };

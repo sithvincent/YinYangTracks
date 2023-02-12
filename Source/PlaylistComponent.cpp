@@ -14,19 +14,21 @@
 //======================CONSTRUCTOR AND DESTRUCTOR===========================
 PlaylistComponent::PlaylistComponent()
 {
-    trackTitles.push_back("Tracking");
-    trackTitles.push_back("Lo2e");
-
 
     // ColumnID must start with one (somehow can't have 'getheight')
-    tableComponent.getHeader().addColumn("Track Title", 1, 400);
-    tableComponent.getHeader().addColumn("Artist", 2, 400);
+    //int(getWidth() / 8)-1
+    //    int(getWidth() / 2)-1
+    //    int(getWidth() * 2 / 8)-1
+    tableComponent.getHeader().addColumn("ID", 1, 100);
+    tableComponent.getHeader().addColumn("Track Title", 2, 400);
+    tableComponent.getHeader().addColumn("Song Length", 3, 100);
+    tableComponent.getHeader().addColumn("Send to Deck", 4, 200);
+
     // 'This' refers to playlistComponent which already has a TableListBoxModel.
     // It registers the former and by extension the model with its functions with tableComponent.
     tableComponent.setModel(this);
     // The table is an object within PlaylistComponent. 
-    addAndMakeVisible(tableComponent);
-    
+    addAndMakeVisible(tableComponent);    
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -85,10 +87,16 @@ void PlaylistComponent::paintCell(  Graphics& g,
                                     int height,
                                     bool rowIsSelected) 
 {
-    g.drawText(trackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
+    if (columnId == 2) {
+        g.drawText(trackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
+    }
+    else if (columnId == 3) {
+        g.drawText(String(trackLengths[rowNumber]), 2, 0, width - 4, height, Justification::centred, true);
+    }
 }
 
 void PlaylistComponent::cellClicked(int rowNumber, int columnId, const MouseEvent&) {
+    DBG("Cell clicked huh.");
 
 }
 
@@ -100,24 +108,32 @@ Component* PlaylistComponent::refreshComponentForCell(int rowNumber,
                                                       Component* existingComponentToUpdate)
 {
     // Implement button in second column (remember that numbering starts from 1 in 6.1 onwards)
-    if (columnId == 2)
+    if (columnId == 4)
     {
         // If there are no existing components (thus a nullptr), add a ptr to a button.
         if (existingComponentToUpdate == nullptr)
         {            
             // This function can be continuously called so we don't want a new btn to be created every time
             // A pointer to an existing initialized object would do.
-            TextButton * btn = new TextButton("Play");
-            existingComponentToUpdate = btn;
-            btn->addListener(this);
+            TextButton * btn1 = new TextButton("Add to Deck 1");
+            existingComponentToUpdate = btn1;
+            btn1->addListener(this);
             // See purpose of these two lines in buttonClicked below.
-            String id{ std::to_string(rowNumber) };
-            btn->setComponentID(id);
+            String id1{ std::to_string(rowNumber) };
+            btn1->setComponentID(id1);
+
+            //TextButton* btn2 = new TextButton("Add to Deck 2");
+            //existingComponentToUpdate = btn2;
+            //btn2->addListener(this);
+            //// See purpose of these two lines in buttonClicked below.
+            //String id2{ std::to_string(rowNumber) };
+            //btn2->setComponentID(id2);
         }
     }
     // Returns the existingComponentToUpdate which may be modified in some places (when columnid=2)
     return existingComponentToUpdate;
 }
+
 
 void PlaylistComponent::buttonClicked(Button* button)
 {
@@ -126,4 +142,20 @@ void PlaylistComponent::buttonClicked(Button* button)
     // Thus we have to do this implementation to know which button is clicked on.
     int id = std::stoi(button->getComponentID().toStdString());
     DBG("PlaylistComponent::buttonClicked " << trackTitles[id]);
+}
+
+
+void PlaylistComponent::addEntry(String trackTitle, double trackLength)
+{
+    trackTitles.push_back(trackTitle);
+    trackLengths.push_back(trackLength);
+    tableComponent.updateContent();
+}
+
+void PlaylistComponent::printTitles() {
+    DBG("Total number of track entries: " << trackTitles.size());
+    DBG("Total number of time entries: " << trackLengths.size());
+    for (double &e: trackLengths) {
+        DBG(e);
+    }
 }
