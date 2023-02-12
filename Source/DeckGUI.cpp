@@ -33,10 +33,20 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     addAndMakeVisible(stopButton);
     addAndMakeVisible(loadButton);
     addAndMakeVisible(playButtonDynamic);
-    addAndMakeVisible(volSlider);
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
+    addAndMakeVisible(volLabel);
     addAndMakeVisible(waveformDisplay);
+
+
+    // Attach label to slider
+    volLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    volLabel.setText("Volume", juce::dontSendNotification);
+    volLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    volLabel.attachToComponent(&volSlider, false);
+
+
+    addAndMakeVisible(volSlider);
 
     // Adds the event listener to itself (the button, hence 'this') instead of some other things
     //playButton.addListener(this);
@@ -48,27 +58,19 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     posSlider.addListener(this);
 
     // Set slider range
-    volSlider.setRange(0.0, 1.0);
-    // Added after crash
-    speedSlider.setRange(0.0, 100.0);
+    volSlider.setRange(0.00f, 1.00f);
+    speedSlider.setRange(0.0, 10.0);
     posSlider.setRange(0.0, 1.0);
+
+
 
     // Every half a second it'll call timerCallback.
     // This abstract function inherits from Timer
     startTimer(500);
 
-    /*playTriangle.addTriangle(getWidth() * 1 / 3, getHeight() * 4 / 10,
-        getWidth() * 2 / 3, getHeight() * 4 / 10,
-        getWidth() / 2, getHeight() * 2 / 10);*/
+    // Creates the play and pause icons for the play/pause button
+    playTriangle.addTriangle(10, 0, 20, 5, 10, 10);
 
-    playTriangle.addTriangle(10, 20, 20, 10, 30, 20);
-
-    playButtonDynamic.setOutline(Colours::orange, 1);
-    playButtonDynamic.setShape(playTriangle, false, false, true);
-
-
-    // By default the values are between 0 and 10.
-    //speedSlider.setRange(0.0, 10.0);
 }
 
 DeckGUI::~DeckGUI()
@@ -84,20 +86,17 @@ void DeckGUI::paint (juce::Graphics& g)
 
 
     // Component Outline
-    g.setColour(Colours::green);
-    g.drawRect(getLocalBounds(), 1);   // draw an outline around the component
+    g.setColour(Colours::white);
+    g.drawRect(getLocalBounds(), 1);   
 
     // Paints the Words
     g.setColour(Colours::white);
     g.setFont(14.0f);
     g.drawText("DeckGUI", getLocalBounds(), Justification::centred, true);   
 
-    //g.setColour(juce::Colours::red);
-    //Path roof;
-    //roof.addTriangle(getWidth()*1/3, getHeight() * 4 / 10, 
-    //                 getWidth() * 2 / 3, getHeight() * 4 / 10, 
-    //                 getWidth() /2, getHeight() * 2 / 10);
-    //g.fillPath(roof);
+
+    playButtonDynamic.setColours(Colours::green, Colours::orange, Colours::darkorange);
+    playButtonDynamic.setShape(playTriangle, false, true, true);
 }
 
 void DeckGUI::resized()
@@ -106,20 +105,27 @@ void DeckGUI::resized()
     // If you add any child components, this is where you should
     // update their positions.
     double rowH = getHeight() / 8;
-    playButtonDynamic.setBounds    (0, 0, getWidth(), rowH);
-    stopButton.setBounds    (0, rowH, getWidth(), rowH);
-    volSlider.setBounds     (0, rowH * 2, getWidth(), rowH);
-    speedSlider.setBounds   (0, rowH * 3, getWidth(), rowH);
-    posSlider.setBounds     (0, rowH * 4, getWidth(), rowH);
-    waveformDisplay.setBounds(0, rowH * 5, getWidth(), rowH * 2);
-    loadButton.setBounds    (0, rowH * 7, getWidth(), rowH);
+    double columnW = getWidth() / 5;
+
+    // Button locations
+    playButtonDynamic.setBounds (columnW * 2, 0,      columnW, rowH*2);
+    stopButton.setBounds        (columnW * 2, rowH*2, columnW, rowH*2);
+    loadButton.setBounds        (columnW * 2, rowH*4, columnW, rowH*2);
+
+    // Slider locations
+    volSlider.setBounds         (0, rowH, columnW, rowH*5);
+    speedSlider.setBounds       (columnW,   0, columnW, rowH*6);
+    posSlider.setBounds         (columnW*3, 0, columnW*2, rowH*6);
+
+    waveformDisplay.setBounds   (0, rowH*6, getWidth(), rowH * 2);
 
 }
 
 
  //This one is a callback function from the listener 
  //It is an abstract function.
-void DeckGUI::buttonClicked(Button* button) {
+void DeckGUI::buttonClicked(Button* button) 
+{
     if (button == &playButtonDynamic) {
         if (isPlaying == false) {
             // use dbg instead of std::cout on this non-terminal app
@@ -140,29 +146,26 @@ void DeckGUI::buttonClicked(Button* button) {
     else if (button == &loadButton)
     {
         // this does work in 6.1 but the syntax is a little funky
-    // https://docs.juce.com/master/classFileChooser.html#ac888983e4abdd8401ba7d6124ae64ff3
-    // - configure the dialogue
+        // https://docs.juce.com/master/classFileChooser.html#ac888983e4abdd8401ba7d6124ae64ff3
+        // configure the dialogue (an example of lambda function)
         auto fileChooserFlags = FileBrowserComponent::canSelectFiles;
-        // - launch out of the main thread
-        // - note how we use a lambda function which you've probably
-        // not seen before. Please do not worry too much about that. 
+        // launch out of the main thread
         fChooser.launchAsync(fileChooserFlags, 
                             [this](const FileChooser& chooser)
-                            {
-                                // Gets the information from the chosen file, particularly its URL
-                                File chosenFile = chooser.getResult();
-                                URL audioURL = URL{ chosenFile };
+        {
+            // Gets the information from the chosen file, particularly its URL
+            URL audioURL = URL { chooser.getResult() };
 
-                                // Passes the URL to DJAudioPlayer and waveformDisplay to load audio and waveform graphics
-                                playerPlaceholder->loadURL(audioURL, vidLength);
-                                waveformDisplay.loadURL(audioURL);
+            // Passes the URL to DJAudioPlayer and waveformDisplay to load audio and waveform graphics
+            playerPlaceholder->loadURL(audioURL, vidLength);
+            waveformDisplay.loadURL(audioURL);
 
-                                if (vidLength != 0) {
-                                    // Vector to store the tracktitles
-                                    playlistComponentPlaceholder->addEntry(audioURL.getFileName(), vidLength, URL{ chosenFile });
-                                    vidLength = 0;
-                                }
-                            });
+            if (vidLength != 0) {
+                // Vector to store the tracktitles
+                playlistComponentPlaceholder->addEntry(audioURL.getFileName(), vidLength, audioURL);
+                vidLength = 0;
+            }
+        });
     }
 }   
 
@@ -207,16 +210,16 @@ void DeckGUI::timerCallback() {
     // into the DJAudioPlayer.
     if (playlistComponentPlaceholder->loadMusicIntoDeck) 
     {
-        // If the music library specifies to load the track into the first deck
-        // Only triggers for the deck1 DJAudioPlayer object
+        // If the music library specifies to load the track into the first deck,
+        // run following code for the DJAudioPlayer object deck1 (deck2 object won't trigger)
         if (this->name == "deck1" && playlistComponentPlaceholder->deckToLoad == 1)
         {
             playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);
             waveformDisplay.loadURL(playlistComponentPlaceholder->urlToLoad);
             playlistComponentPlaceholder->loadMusicIntoDeck = false;
         }
-        // If the music library specifies to load the track into the second deck
-        // Only triggers for the deck2 DJAudioPlayer object
+        // If the music library specifies to load the track into the second deck,
+        // run following code for the DJAudioPlayer object deck2 (deck1 object won't trigger)
         else if (this->name == "deck2" && playlistComponentPlaceholder->deckToLoad == 2)
         {
             playerPlaceholder->loadURL(playlistComponentPlaceholder->urlToLoad, vidLength);

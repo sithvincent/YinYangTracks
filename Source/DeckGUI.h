@@ -46,10 +46,14 @@ class DeckGUI  :public Component,
         TextButton stopButton{ "STOP" };
         TextButton loadButton{ "LOAD" };
         ShapeButton playButtonDynamic{"boGUS", Colours::green, Colours::green, Colours::green };
-        Slider volSlider;
-        Slider speedSlider;
-        Slider posSlider;
+        Slider volSlider { Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxBelow };
+        Slider speedSlider{ Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxAbove };;
+        Slider posSlider{ Slider::SliderStyle::Rotary  , Slider::TextEntryBoxPosition::TextBoxAbove };;
+
+        Label  volLabel;
+
         Path playTriangle;
+        Path pauseTriangle;
         bool isPlaying;
         double vidLength;
 
