@@ -5,10 +5,12 @@
 //==============================================================================
 // Constructor Function - audio thumbnail initialized with values and fileloaded set to false
 WaveformDisplay::WaveformDisplay(AudioFormatManager& formatManagerToUse, 
-                                 AudioThumbnailCache& cacheToUse) : 
+                                 AudioThumbnailCache& cacheToUse,
+                                 String _attachedDeck) :
                                  audioThumbnail(1000, formatManagerToUse, cacheToUse), 
                                  fileLoaded (false),
-                                 position(0)
+                                 position(0),
+                                 attachedDeck(_attachedDeck)
 {
     audioThumbnail.addChangeListener(this);
 }
@@ -19,17 +21,28 @@ WaveformDisplay::~WaveformDisplay()
 
 void WaveformDisplay::paint (juce::Graphics& g)
 {
-    g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));   // clear the background
-    g.setColour(juce::Colours::black);
+    // g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));   // clear the background
+    g.fillAll(Colours::black);   // clear the background
     // draw an outline around the component
-    g.drawRect(getLocalBounds(), 1);   
-    g.setColour(juce::Colours::green);
+    g.setColour(Colours::white);
+    g.drawRect(getLocalBounds(), 1);
     // Change the colour of the waveform column if a file is loaded
     if (fileLoaded) {
+        if (this->attachedDeck == "deck1") {
+            g.setColour(juce::Colours::turquoise);
+        }
+        else if (this->attachedDeck == "deck2") {
+            g.setColour(juce::Colours::deeppink);
+        }
         // Draws the actual waveform display
         audioThumbnail.drawChannel(g, getLocalBounds(), 0, audioThumbnail.getTotalLength(), 0, 1.0f);
         // Draw the moving rectangle (this is the item that will constantly get changed during repaint)
-        g.setColour(Colours::lightgreen);
+        if (this->attachedDeck == "deck1") {
+            g.setColour(juce::Colours::deeppink);
+        }
+        else if (this->attachedDeck == "deck2") {
+            g.setColour(juce::Colours::turquoise);
+        }
         g.drawRect(position * getWidth(), 0, getWidth() / 20, getHeight());
     }
     // Else just fill it up as per normal

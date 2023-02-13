@@ -20,7 +20,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
                  AudioThumbnailCache& cacheToUse, 
                  String _name) : playerPlaceholder{ _djAudioPlayer },
                                 playlistComponentPlaceholder{ _playlistComponent },
-                                waveformDisplay(formatManagerToUse, cacheToUse), // call constructor on waveform
+                                waveformDisplay(formatManagerToUse, cacheToUse, _name), // call constructor on waveform
                                 isPlaying(false),
                                 vidLength(0),
                                 name (_name)
@@ -32,17 +32,17 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     //addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
     addAndMakeVisible(loadButton);
-    addAndMakeVisible(playButtonDynamic);
+    addAndMakeVisible(playPauseButton);
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
     addAndMakeVisible(volLabel);
     addAndMakeVisible(waveformDisplay);
 
 
-    // Attach label to slider
-    volLabel.setColour(juce::Label::textColourId, juce::Colours::white);
-    volLabel.setText("Volume", juce::dontSendNotification);
-    volLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+    // Attach label to sliders
+    volLabel.setColour(Label::textColourId, juce::Colours::white);
+    volLabel.setText("VOLUME", juce::dontSendNotification);
+    volLabel.setJustificationType(Justification::centred);
     volLabel.attachToComponent(&volSlider, false);
 
 
@@ -50,7 +50,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
 
     // Adds the event listener to itself (the button, hence 'this') instead of some other things
     //playButton.addListener(this);
-    playButtonDynamic.addListener(this);
+    playPauseButton.addListener(this);
     stopButton.addListener(this);
     loadButton.addListener(this);
     volSlider.addListener(this);
@@ -58,8 +58,32 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     posSlider.addListener(this);
 
     // Set slider range
-    volSlider.setRange(0.00f, 1.00f);
-    speedSlider.setRange(0.0, 10.0);
+    volSlider.setRange(0.0f, 1.0f);
+    volSlider.setTextValueSuffix(" x");
+    if (this->name == "deck2") {
+        volSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::lavender);
+        volSlider.setColour(Slider::ColourIds::thumbColourId, Colours::turquoise);
+        volSlider.setColour(Slider::ColourIds::trackColourId, Colours::deeppink);
+    }
+    else if (this->name == "deck1") {
+        volSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::paleturquoise);
+        volSlider.setColour(Slider::ColourIds::thumbColourId, Colours::deeppink);
+        volSlider.setColour(Slider::ColourIds::trackColourId, Colours::turquoise);
+    }
+
+
+    speedSlider.setRange(0.1, 10.0);
+    if (this->name == "deck2") {
+        speedSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::lavender);
+        speedSlider.setColour(Slider::ColourIds::thumbColourId, Colours::deeppink);
+        speedSlider.setColour(Slider::ColourIds::trackColourId, Colours::deeppink);
+    }
+    else if (this->name == "deck1") {
+        speedSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::paleturquoise);
+        speedSlider.setColour(Slider::ColourIds::thumbColourId, Colours::turquoise);
+        speedSlider.setColour(Slider::ColourIds::trackColourId, Colours::turquoise);
+    }
+
     posSlider.setRange(0.0, 1.0);
 
 
@@ -70,6 +94,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
 
     // Creates the play and pause icons for the play/pause button
     playTriangle.addTriangle(10, 0, 20, 5, 10, 10);
+    pauseRectangle.addRoundedRectangle(Rectangle(20,20), 3);
 
 }
 
@@ -82,11 +107,11 @@ DeckGUI::~DeckGUI()
 void DeckGUI::paint (juce::Graphics& g)
 {    
     // clear the background
-    g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
-
+    //g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId));
+    g.fillAll(Colours::black);
 
     // Component Outline
-    g.setColour(Colours::white);
+    g.setColour(Colours::black);
     g.drawRect(getLocalBounds(), 1);   
 
     // Paints the Words
@@ -94,9 +119,14 @@ void DeckGUI::paint (juce::Graphics& g)
     g.setFont(14.0f);
     g.drawText("DeckGUI", getLocalBounds(), Justification::centred, true);   
 
-
-    playButtonDynamic.setColours(Colours::green, Colours::orange, Colours::darkorange);
-    playButtonDynamic.setShape(playTriangle, false, true, true);
+    if (isPlaying) {
+        playPauseButton.setColours(Colours::deeppink, Colours::mediumvioletred, Colours::mediumvioletred);
+        playPauseButton.setShape(pauseRectangle, false, true, true);
+    }
+    else {
+        playPauseButton.setColours(Colours::turquoise, Colours::paleturquoise, Colours::paleturquoise);
+        playPauseButton.setShape(playTriangle, false, true, true);
+    }
 }
 
 void DeckGUI::resized()
@@ -106,19 +136,26 @@ void DeckGUI::resized()
     // update their positions.
     double rowH = getHeight() / 8;
     double columnW = getWidth() / 5;
+    double padding = getWidth() / 30;
 
-    // Button locations
-    playButtonDynamic.setBounds (columnW * 2, 0,      columnW, rowH*2);
-    stopButton.setBounds        (columnW * 2, rowH*2, columnW, rowH*2);
-    loadButton.setBounds        (columnW * 2, rowH*4, columnW, rowH*2);
+    // Button locations. Fixed no matter which deck it is in.
+    playPauseButton.setBounds (columnW * 2, padding,      columnW, rowH*2-padding*2);
+    stopButton.setBounds        (columnW * 2, rowH*2+ padding, columnW, rowH*2 - padding * 2);
+    loadButton.setBounds        (columnW * 2, rowH*4 + padding, columnW, rowH*2 - padding * 2);
 
-    // Slider locations
-    volSlider.setBounds         (0, rowH, columnW, rowH*5);
-    speedSlider.setBounds       (columnW,   0, columnW, rowH*6);
-    posSlider.setBounds         (columnW*3, 0, columnW*2, rowH*6);
+    // Slider locations - varies depending on the deck it is in.
+    if (name == "deck1") {
+        volSlider.setBounds(0, rowH, columnW, rowH * 5);
+        speedSlider.setBounds(columnW, 0, columnW, rowH * 6);
+        posSlider.setBounds(columnW * 3, 0, columnW * 2, rowH * 6);
+    }
+    else if (name == "deck2") {
+        volSlider.setBounds(columnW * 4, rowH, columnW, rowH * 5);
+        speedSlider.setBounds(columnW * 3, 0, columnW, rowH * 6);
+        posSlider.setBounds(0, 0, columnW * 2, rowH * 6);
+    }
 
-    waveformDisplay.setBounds   (0, rowH*6, getWidth(), rowH * 2);
-
+    waveformDisplay.setBounds(0, rowH * 6, getWidth(), rowH * 2);
 }
 
 
@@ -126,17 +163,19 @@ void DeckGUI::resized()
  //It is an abstract function.
 void DeckGUI::buttonClicked(Button* button) 
 {
-    if (button == &playButtonDynamic) {
+    if (button == &playPauseButton) {
         if (isPlaying == false) {
             // use dbg instead of std::cout on this non-terminal app
             DBG("play button pressed.");
             playerPlaceholder->start();
             isPlaying = true;
+            repaint();
         }
         else if (isPlaying == true) {
             DBG("stop button pressed.");
             playerPlaceholder->stop();
             isPlaying = false;
+            repaint();
         }
     }
     else if(button == &stopButton){

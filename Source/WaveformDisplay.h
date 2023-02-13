@@ -17,31 +17,36 @@
 class WaveformDisplay : public juce::Component,
                         public ChangeListener
 {
-public:
-    WaveformDisplay(AudioFormatManager& formatManagerToUse,
-                    AudioThumbnailCache& cacheToUse);
-    ~WaveformDisplay() override;
+    public:
+        WaveformDisplay(AudioFormatManager& formatManagerToUse,
+                        AudioThumbnailCache& cacheToUse,
+                        String _attachedDeck);
+        ~WaveformDisplay() override;
 
-    void paint (juce::Graphics&) override;
-    // Have to include this as it is a pure virtual function, but it has no subcomponent
-    // so not necessary to implement.
-    void resized() override;
-    // Get audio info from incoming audio thumbnail
-    void loadURL(URL audioURL);
-    /*Sets actual position of playhead by calling the repaint function.*/
-    void setPositionRelative(double pos);
+        void paint (juce::Graphics&) override;
+        // Have to include this as it is a pure virtual function, but it has no subcomponent
+        // so not necessary to implement.
+        void resized() override;
+        // Get audio info from incoming audio thumbnail
+        void loadURL(URL audioURL);
+        /*Sets actual position of playhead by calling the repaint function.*/
+        void setPositionRelative(double pos);
 
-    /* Inherited from Change Listener class. This function needed as otherwise the 
-    waveform would only load if you resize window due to running on a different 'thread'
-    than the main Audio Player. Relevant on initial fileload.*/
-    void changeListenerCallback(ChangeBroadcaster* source) override;
+        /* Inherited from Change Listener class. This function needed as otherwise the 
+        waveform would only load if you resize window due to running on a different 'thread'
+        than the main Audio Player. Relevant on initial fileload.*/
+        void changeListenerCallback(ChangeBroadcaster* source) override;
 
 
-private:
-    // Main object responsible for drawing of the visualizer
-    AudioThumbnail audioThumbnail;
-    bool fileLoaded;
-    double position;
+    private:
+        // Main object responsible for drawing of the visualizer
+        AudioThumbnail audioThumbnail;
+        // Checks if a file is loaded.
+        bool fileLoaded;
+        double position;
+        // Specifies the name of the deck that uses this display.
+        // Important in varying its colour based on the deck it belongs to.
+        String attachedDeck;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WaveformDisplay)
