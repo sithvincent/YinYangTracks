@@ -13,7 +13,8 @@
 #include <string>
 #include "PlaylistComponent.h"
 
-class DJAudioPlayer : public AudioSource 
+class DJAudioPlayer : public AudioSource
+
 {
     public:
         DJAudioPlayer(AudioFormatManager& formatManagerToUse);
@@ -29,11 +30,12 @@ class DJAudioPlayer : public AudioSource
         void setGain(double gain);
         void setSpeed(double ratio);
         void setPosition(double posInSecs);
-        void setPositionRelative(double pos);
+        void setPositionRelative(double pos);        
 
         //=======================AUXILLIARY FUNCTIONS======================
         void start();
         void stop();
+        void toggleLoop(bool shouldLoop);
         // Loads the actual file and puts it in transport source
         void loadURL(URL audioURL, double& vidLength);
         /**Get the relative position of the playhead */
@@ -54,4 +56,5 @@ class DJAudioPlayer : public AudioSource
         //PlaylistComponent &playlistComponent;
         // A smart pointer that eliminates readerSource when it is out of scope.
         std::unique_ptr<AudioFormatReaderSource> readerSource;
+
 };

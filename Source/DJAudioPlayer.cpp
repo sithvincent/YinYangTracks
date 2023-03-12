@@ -22,16 +22,9 @@ DJAudioPlayer::~DJAudioPlayer()
 
 //==============================================================================
 void DJAudioPlayer::prepareToPlay(int samplesPerBlockExpected, double sampleRate)  
-{
-        
+{        
     transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
     resampleSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
-
-
-    // Phase method necessary to So we could remember where we were in the synthesised 
-    // waveform between calls to getNextAudioBlock. This allows us to avoid discontinuities
-    // phase = 0;
-    // dphase = 0.0001;
 }
 
 // This one will constantly get called as the maincomponent getNextAudioBlock is constantly called,
@@ -57,6 +50,14 @@ void DJAudioPlayer::stop()
 {
     transportSource.stop();
 }
+
+void DJAudioPlayer::toggleLoop(bool shouldLoop)
+{   
+    readerSource->setLooping(shouldLoop);
+    DBG("Loop toggled");
+    transportSource.setLooping(shouldLoop);
+}
+
 
 void DJAudioPlayer::loadURL(URL audioURL, double& vidLength) {
     // This step extracts rudimentary numbers from the input
@@ -121,31 +122,3 @@ void DJAudioPlayer::setPositionRelative(double pos) {
 double getSongLength(AudioTransportSource& transportSource) {
     return transportSource.getLengthInSeconds();
 }
-
-
-// IF YOU ARE SYNTHESIZING YOUR OWN WEIRD MUSIC
-//void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
-//{
-//    // Your audio-processing code goes here!
-//
-//    // If not producing any data, we need to clear the buffer (to prevent the output of random noise)
-//    // bufferToFill.clearActiveBufferRegion();
-//
-//    // Create the sounds based on random values for the left earphone
-//    auto* leftChan = bufferToFill.buffer->getWritePointer(0, 
-//                                                         bufferToFill.startSample);
-//    // for the right earphone
-//    auto* rightChan = bufferToFill.buffer->getWritePointer(0,
-//                                                          bufferToFill.startSample);
-//    for (auto i = 0; i < bufferToFill.numSamples; ++i) {
-//        // Moderate the signal strength by 0.25. Randomize the values.
-//        // double sample = rand.nextDouble()*0.25;
-//        // double sample = fmod (phase, 0.2);
-//        double sample = sin(phase) * 0.1;
-//        leftChan[i] = sample;
-//        rightChan[i] = sample;
-//        // Increases every 'i' but is reset to 0 when it hits 0.2
-//        DBG("Sample value is: "<<sample);
-//        phase += dphase;
-//    }
-//}

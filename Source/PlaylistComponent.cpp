@@ -8,11 +8,13 @@
   ==============================================================================
 */
 
+#include <string.h>
 #include <JuceHeader.h>
 #include "PlaylistComponent.h"
 
 //======================CONSTRUCTOR AND DESTRUCTOR===========================
-PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false)
+PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false),
+                                        showFiltered(false)
 {
 
     // ColumnID must start with one (somehow can't have 'getheight')
@@ -29,7 +31,11 @@ PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false)
     // It registers the former and by extension the model with its functions with tableComponent.
     tableComponent.setModel(this);
     // The table is an object within PlaylistComponent. 
-    addAndMakeVisible(tableComponent);    
+    addAndMakeVisible(tableComponent);   
+    addAndMakeVisible(searchBox);
+    addAndMakeVisible(searchButton);
+    searchButton.addListener(this);
+    searchBox.setText("Search for the name of the music you want, then click...", juce::dontSendNotification);
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -56,7 +62,10 @@ void PlaylistComponent::resized()
 {
     // This method is where you should set the bounds of any child
     // components that your component contains..
-    tableComponent.setBounds(0, 0, getWidth(), getHeight()); 
+    double padding = getHeight() / 10;
+    tableComponent.setBounds(0, 0+padding, getWidth(), getHeight()-padding); 
+    searchBox.setBounds(100, 0, 200, padding);
+    searchButton.setBounds(320, 0, 50, padding);
 }
 
 
@@ -89,10 +98,20 @@ void PlaylistComponent::paintCell(  Graphics& g,
                                     bool rowIsSelected) 
 {
     if (columnId == 2) {
-        g.drawText(trackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
+        if (showFiltered) {
+
+        }
+        else {
+            g.drawText(trackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
+        }
     }
     else if (columnId == 3) {
-        g.drawText(String(trackLengths[rowNumber]), 2, 0, width - 4, height, Justification::centred, true);
+        if (showFiltered) {
+
+        }
+        else {
+            g.drawText(String(trackLengths[rowNumber]), 2, 0, width - 4, height, Justification::centred, true);        
+        }
     }
 }
 
@@ -145,14 +164,24 @@ Component* PlaylistComponent::refreshComponentForCell(int rowNumber,
 
 void PlaylistComponent::buttonClicked(Button* button)
 {
+    if (button == &searchButton) {
+        DBG(searchBox.getText().toStdString());
+        DBG("This triggers");
+        filterEntry(searchBox.getText());
+    }
+    // Controls the buttons that add the selected music to Decks 1 or 2
+    else {
+        int id = std::stoi(button->getComponentID().toStdString());
+        // The two key things deciding what to load
+        urlToLoad = trackURLs[id];
+        deckToLoad = std::stoi(button->getDescription().toStdString());
+        loadMusicIntoDeck = true;
+        DBG("PlaylistComponent::buttonClicked " << trackTitles[id]);
+    }
     // we do not have class data members storing the Buttons, we are
     // creating them dynamically, then losing access to them. So no memory address to refer to.
     // Thus we have to do this implementation to know which button is clicked on.
-    int id = std::stoi(button->getComponentID().toStdString());
-    urlToLoad = trackURLs[id];
-    deckToLoad = std::stoi(button->getDescription().toStdString());
-    loadMusicIntoDeck = true;
-    DBG("PlaylistComponent::buttonClicked " << trackTitles[id]);
+  
 }
 
 
@@ -161,6 +190,25 @@ void PlaylistComponent::addEntry(String trackTitle, double trackLength, URL audi
     trackTitles.push_back(trackTitle);
     trackLengths.push_back(trackLength);
     trackURLs.push_back(audioURL);
+    // Updates the table based on these new information
+    tableComponent.updateContent();
+}
+
+
+void PlaylistComponent::filterEntry(String searchEntry)
+{
+    // The first for loop activates when even one entry is found
+    // The purpose is to move all tracks in the library to a temporary track
+    // And then emptying it to fill with the filtered tracks
+    for (int i = 0; i < trackTitles.size(); i++) {
+        if (trackTitles[i].toStdString().find(searchEntry.toStdString()) != std::string::npos) {
+            DBG("Found");
+            showFiltered = true;
+            tempTrackTitles.push_back(trackTitles[i]);
+            tempTrackLengths.push_back(trackLengths[i]);
+            tempTrackURLs.push_back(trackURLs[i]);            
+        }
+    }
     // Updates the table based on these new information
     tableComponent.updateContent();
 }

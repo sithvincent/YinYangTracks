@@ -42,21 +42,24 @@ class DeckGUI  :public Component,
 
         String name;
         // Buttons and Sliders
-        //TextButton playButton{ "PLAY" };
-        TextButton stopButton{ "REPLAY" };
+        TextButton replayButton{ "REPLAY" };
         TextButton loadButton{ "LOAD" };
+        TextButton loopButton{ "LOOP" };
         ShapeButton playPauseButton{"PLAY", Colours::turquoise, Colours::paleturquoise, Colours::paleturquoise };
-        Slider volSlider { Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxBelow };
+        Slider volSlider { Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxAbove };
         Slider speedSlider{ Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxAbove };;
-        Slider posSlider{ Slider::SliderStyle::Rotary  , Slider::TextEntryBoxPosition::TextBoxAbove };;
+        Slider posSlider{ Slider::SliderStyle::Rotary  , Slider::TextEntryBoxPosition::NoTextBox };;
 
         Label volLabel;
         Label speedLabel;
+        Label posLabel;
 
 
         Path playTriangle;
         Path pauseRectangle;
         bool isPlaying;
+        bool isLooping;
+        bool isLoaded;
         double vidLength;
 
         // We don't create a player, just a pointer to a player

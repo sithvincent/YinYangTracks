@@ -52,8 +52,11 @@ class PlaylistComponent  : public juce::Component,
                                             bool isRowSelected,
                                             Component* existingComponentToUpdate) override;
 
-        // Adds an entry into the library
+        // Adds a song entry into the library
         void addEntry(String, double, URL);
+
+        // Filters what the library shows based on search criteria
+        void filterEntry(String);
 
         // The URL of the music in the library to be loaded into the deck. 
         // Must be public because DeckGUI will access this.
@@ -61,6 +64,8 @@ class PlaylistComponent  : public juce::Component,
         int deckToLoad;
         // Tells DeckGUI whether there is music to be loaded into the deck.
         bool loadMusicIntoDeck;
+
+        bool showFiltered;
 
         // Dictates what to do when a button is clicked.
         void buttonClicked(Button* button) override;
@@ -75,10 +80,20 @@ class PlaylistComponent  : public juce::Component,
         // Need to register TableListBoxModel functions with this component.
         TableListBox tableComponent;
 
-        // Vector to store the tracktitles
+        // Vector to store the tracktitles to be displayed
         std::vector <String> trackTitles;
         std::vector <double> trackLengths;
         std::vector <URL> trackURLs;
+
+        // Vectors to store in the background all files loaded into the library previously
+        // while the library displays the filtered list of music from search
+        std::vector <String> tempTrackTitles;
+        std::vector <double> tempTrackLengths;
+        std::vector <URL> tempTrackURLs;
+
+        // Where user can key in values
+        TextEditor searchBox;
+        TextButton searchButton{ "SEARCH" };
 
         // MACRO
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaylistComponent)
