@@ -68,12 +68,8 @@ void DJAudioPlayer::loadURL(URL audioURL, double& vidLength) {
         std::unique_ptr<AudioFormatReaderSource> newSource(new AudioFormatReaderSource(reader, true));
         transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
         readerSource.reset(newSource.release());
-
         vidLength = transportSource.getLengthInSeconds();
-        // Pushes the information about the file into playlist's vectors
- /*       playlistComponent.addEntry(audioURL.getFileName(),
-                                    transportSource.getLengthInSeconds());
-        playlistComponent.printTitles();*/
+        transportSource.setGain(0.5);
     }
     else
     {
@@ -90,6 +86,10 @@ void DJAudioPlayer::setGain(double gain) {
     }
 }
 
+double DJAudioPlayer::getGain() {
+    return transportSource.getGain();
+}
+
 void DJAudioPlayer::setSpeed(double ratio) {
     if (ratio < 0 || ratio>100) {
         DBG("DJAudioPlayer::setSpeed should be between 0 and 100.");
@@ -97,6 +97,10 @@ void DJAudioPlayer::setSpeed(double ratio) {
     else {
         resampleSource.setResamplingRatio(ratio);
     }
+}
+
+double DJAudioPlayer::getSpeed() {
+    return resampleSource.getResamplingRatio();
 }
 
 void DJAudioPlayer::setPosition(double posInSecs) {
@@ -119,6 +123,3 @@ void DJAudioPlayer::setPositionRelative(double pos) {
 }
 
 
-double getSongLength(AudioTransportSource& transportSource) {
-    return transportSource.getLengthInSeconds();
-}

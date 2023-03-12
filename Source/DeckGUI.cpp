@@ -30,7 +30,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     // initialise any special settings that your component needs.
 
     // Adding components and making them visible
-    addAndMakeVisible(replayButton);
+    addAndMakeVisible(restartButton);
     addAndMakeVisible(loadButton);
     addAndMakeVisible(playPauseButton);
     addAndMakeVisible(loopButton);
@@ -58,13 +58,13 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     speedLabel.attachToComponent(&speedSlider, false);
 
     posLabel.setColour(Label::textColourId, juce::Colours::white);
-    posLabel.setText("MUSIC PROGRESS", juce::dontSendNotification);
+    posLabel.setText("PLAYBACK CONTROL", juce::dontSendNotification);
     posLabel.setJustificationType(Justification::centred);
     posLabel.attachToComponent(&posSlider, false);
 
     // Adds the event listener to itself (the button, hence 'this') instead of some other things
     playPauseButton.addListener(this);
-    replayButton.addListener(this);
+    restartButton.addListener(this);
     loadButton.addListener(this);
     loopButton.addListener(this);
     volSlider.addListener(this);
@@ -190,7 +190,7 @@ void DeckGUI::resized()
 
     // Button locations. Fixed no matter which deck it is in.
     playPauseButton.setBounds   (columnW * 2, padding       ,  columnW, rowH*1.5-padding*0.5);
-    replayButton.setBounds      (columnW * 2, rowH*1.5+ padding*2, columnW, rowH * 1.5 - padding * 2);
+    restartButton.setBounds      (columnW * 2, rowH*1.5+ padding*2, columnW, rowH * 1.5 - padding * 2);
     loadButton.setBounds        (columnW * 2, rowH*3 + padding*1.5, columnW, rowH * 1.5 - padding * 2);
     loopButton.setBounds        (columnW * 2, rowH * 4.5 + padding, columnW, rowH * 1.5 - padding * 2);
 
@@ -229,7 +229,7 @@ void DeckGUI::buttonClicked(Button* button)
             repaint();
         }
     }
-    else if(button == &replayButton){
+    else if(button == &restartButton){
         DBG("stop button pressed.");
         playerPlaceholder->setPositionRelative(0);
     }
@@ -331,5 +331,14 @@ void DeckGUI::timerCallback() {
     }
     if (isPlaying) {
         posSlider.setValue(playerPlaceholder->getPositionRelative());
+    }
+    if (isLoaded) {
+        speedSlider.setValue(playerPlaceholder->getSpeed());
+        volSlider.setValue(playerPlaceholder->getGain());
+    }
+    // If the track has finished playing and not set to loop, reset the play button.
+    if (playerPlaceholder->getPositionRelative()>=1 && !isLooping) {
+        isPlaying = false;
+        repaint();
     }
 }

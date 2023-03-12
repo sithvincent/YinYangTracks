@@ -18,9 +18,7 @@ PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false),
 {
 
     // ColumnID must start with one (somehow can't have 'getheight')
-    //int(getWidth() / 8)-1
-    //    int(getWidth() / 2)-1
-    //    int(getWidth() * 2 / 8)-1
+
     tableComponent.getHeader().addColumn("ID", 1, 100);
     tableComponent.getHeader().addColumn("Track Title", 2, 300);
     tableComponent.getHeader().addColumn("Song Length", 3, 100);
@@ -31,11 +29,21 @@ PlaylistComponent::PlaylistComponent(): loadMusicIntoDeck(false),
     // It registers the former and by extension the model with its functions with tableComponent.
     tableComponent.setModel(this);
     // The table is an object within PlaylistComponent. 
-    addAndMakeVisible(tableComponent);   
+    addAndMakeVisible(tableComponent);
+
+    // Add the searchbox that allows the user to type in the keyword to filter library entries
     addAndMakeVisible(searchBox);
+    searchBox.setJustification(Justification::centred);
+    searchBox.setText("Type in the name of the track you want, then click Search.", juce::dontSendNotification);
+    searchBox.setSelectAllWhenFocused(true);
+
+    // Add the Search button that filters library entries based on the words in the search box
     addAndMakeVisible(searchButton);
     searchButton.addListener(this);
-    searchBox.setText("Search for the name of the music you want, then click...", juce::dontSendNotification);
+
+    // Adds the button that clears the selection and shows the unfiltered library
+    addAndMakeVisible(clearSearchButton);
+    clearSearchButton.addListener(this);
 }
 
 PlaylistComponent::~PlaylistComponent()
@@ -64,8 +72,9 @@ void PlaylistComponent::resized()
     // components that your component contains..
     double padding = getHeight() / 10;
     tableComponent.setBounds(0, 0+padding, getWidth(), getHeight()-padding); 
-    searchBox.setBounds(100, 0, 200, padding);
-    searchButton.setBounds(320, 0, 50, padding);
+    searchBox.setBounds(0, 0, getWidth()*0.75, padding);
+    searchButton.setBounds(getWidth() * 0.75, 0, getWidth()*0.1, padding);
+    clearSearchButton.setBounds(getWidth() * 0.85, 0, getWidth() * 0.15, padding);
 }
 
 
@@ -73,7 +82,12 @@ void PlaylistComponent::resized()
 
 // Ensures there are sufficient rows 
 int PlaylistComponent::getNumRows() {
-    return trackTitles.size();
+    if (showFiltered) {
+        return tempTrackTitles.size();
+    }
+    else {
+        return trackTitles.size();
+    }
 }
 
 void PlaylistComponent::paintRowBackground( Graphics& g,
@@ -97,9 +111,12 @@ void PlaylistComponent::paintCell(  Graphics& g,
                                     int height,
                                     bool rowIsSelected) 
 {
-    if (columnId == 2) {
+    if (columnId == 1) {
+        g.drawText(String(rowNumber), 2, 0, width - 4, height, Justification::centredLeft, true);    
+    }
+    else if (columnId == 2) {
         if (showFiltered) {
-
+            g.drawText(tempTrackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
         }
         else {
             g.drawText(trackTitles[rowNumber], 2, 0, width - 4, height, Justification::centredLeft, true);
@@ -107,7 +124,7 @@ void PlaylistComponent::paintCell(  Graphics& g,
     }
     else if (columnId == 3) {
         if (showFiltered) {
-
+            g.drawText(String(tempTrackLengths[rowNumber]), 2, 0, width - 4, height, Justification::centred, true);
         }
         else {
             g.drawText(String(trackLengths[rowNumber]), 2, 0, width - 4, height, Justification::centred, true);        
@@ -169,10 +186,14 @@ void PlaylistComponent::buttonClicked(Button* button)
         DBG("This triggers");
         filterEntry(searchBox.getText());
     }
+    else if (button == &clearSearchButton) {
+        DBG("Search should be cleared");
+        clearSearch();
+    }
     // Controls the buttons that add the selected music to Decks 1 or 2
     else {
         int id = std::stoi(button->getComponentID().toStdString());
-        // The two key things deciding what to load
+        // The two key things deciding what to load onto the deck
         urlToLoad = trackURLs[id];
         deckToLoad = std::stoi(button->getDescription().toStdString());
         loadMusicIntoDeck = true;
@@ -210,6 +231,16 @@ void PlaylistComponent::filterEntry(String searchEntry)
         }
     }
     // Updates the table based on these new information
+    tableComponent.updateContent();
+}
+
+
+void PlaylistComponent::clearSearch() {
+    tempTrackTitles.clear();
+    tempTrackLengths.clear();
+    tempTrackURLs.clear();
+    showFiltered = false;
+    searchBox.setText("Type in the name of the track you want to filter, then click Search.", juce::dontSendNotification);
     tableComponent.updateContent();
 }
 

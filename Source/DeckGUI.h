@@ -42,7 +42,7 @@ class DeckGUI  :public Component,
 
         String name;
         // Buttons and Sliders
-        TextButton replayButton{ "REPLAY" };
+        TextButton restartButton{ "RESTART" };
         TextButton loadButton{ "LOAD" };
         TextButton loopButton{ "LOOP" };
         ShapeButton playPauseButton{"PLAY", Colours::turquoise, Colours::paleturquoise, Colours::paleturquoise };

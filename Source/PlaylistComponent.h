@@ -58,6 +58,9 @@ class PlaylistComponent  : public juce::Component,
         // Filters what the library shows based on search criteria
         void filterEntry(String);
 
+        // Filters what the library shows based on search criteria
+        void clearSearch();
+
         // The URL of the music in the library to be loaded into the deck. 
         // Must be public because DeckGUI will access this.
         URL urlToLoad;
@@ -94,6 +97,7 @@ class PlaylistComponent  : public juce::Component,
         // Where user can key in values
         TextEditor searchBox;
         TextButton searchButton{ "SEARCH" };
+        TextButton clearSearchButton{ "CLEAR SEARCH" };
 
         // MACRO
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaylistComponent)

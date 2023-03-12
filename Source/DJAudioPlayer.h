@@ -28,7 +28,9 @@ class DJAudioPlayer : public AudioSource
 
         //=======================SLIDERS===================================
         void setGain(double gain);
+        double getGain();
         void setSpeed(double ratio);
+        double getSpeed();
         void setPosition(double posInSecs);
         void setPositionRelative(double pos);        
 
@@ -40,6 +42,7 @@ class DJAudioPlayer : public AudioSource
         void loadURL(URL audioURL, double& vidLength);
         /**Get the relative position of the playhead */
         double getPositionRelative();
+        bool trackFinished();
 
         
 
