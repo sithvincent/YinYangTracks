@@ -183,7 +183,7 @@ void PlaylistComponent::buttonClicked(Button* button)
 {
     if (button == &searchButton) {
         DBG(searchBox.getText().toStdString());
-        DBG("This triggers");
+        DBG("User is searching.");
         filterEntry(searchBox.getText());
     }
     else if (button == &clearSearchButton) {

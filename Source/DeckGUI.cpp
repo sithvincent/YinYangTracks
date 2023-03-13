@@ -29,20 +29,23 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     // In your constructor, you should add any child components, and
     // initialise any special settings that your component needs.
 
-    // Adding components and making them visible
+    // Adding BUTTONS and making them visible
     addAndMakeVisible(restartButton);
     addAndMakeVisible(loadButton);
     addAndMakeVisible(playPauseButton);
     addAndMakeVisible(loopButton);
 
+    // Adding SLIDERS and making them visible
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
     addAndMakeVisible(volSlider);
 
+    // Adding LABELS and making them visible
     addAndMakeVisible(volLabel);
     addAndMakeVisible(speedLabel);
     addAndMakeVisible(posLabel);
 
+    // Adding the waveformDisplay and making them visible
     addAndMakeVisible(waveformDisplay);
 
 
@@ -74,26 +77,30 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
     // Volume slider range and colour
     volSlider.setRange(0.0, 1.0);
     volSlider.setTextBoxStyle(juce::Slider::TextBoxAbove, false, volSlider.getTextBoxWidth()*0.9, volSlider.getTextBoxHeight());
+
+    // If this is the right hand side deck, sets the colour to be pinkish
     if (this->name == "deck2") {
         volSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::lavender);
         volSlider.setColour(Slider::ColourIds::thumbColourId, Colours::deeppink);
         volSlider.setColour(Slider::ColourIds::trackColourId, Colours::deeppink);
     }
+    // If this is the left hand side deck, sets the colour to be turquouise
     else if (this->name == "deck1") {
         volSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::paleturquoise);
         volSlider.setColour(Slider::ColourIds::thumbColourId, Colours::turquoise);
         volSlider.setColour(Slider::ColourIds::trackColourId, Colours::turquoise);
-    }
-    
+    }    
 
     // Speed slider range and colour
     speedSlider.setRange(0.1, 10.0);
     speedSlider.setTextBoxStyle(juce::Slider::TextBoxAbove, false, speedSlider.getTextBoxWidth() * 0.9, speedSlider.getTextBoxHeight());
+    // If this is the right hand side deck, sets the colour to be pinkish
     if (this->name == "deck2") {
         speedSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::lavender);
         speedSlider.setColour(Slider::ColourIds::thumbColourId, Colours::deeppink);
         speedSlider.setColour(Slider::ColourIds::trackColourId, Colours::deeppink);
     }
+    // If this is the left hand side deck, sets the colour to be turquouise
     else if (this->name == "deck1") {
         speedSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::paleturquoise);
         speedSlider.setColour(Slider::ColourIds::thumbColourId, Colours::turquoise);
@@ -102,11 +109,13 @@ DeckGUI::DeckGUI(DJAudioPlayer* _djAudioPlayer,
 
     // Position slider range and colour
     posSlider.setRange(0.0, 1.0);
+    // If this is the right hand side deck, sets the colour to be pinkish
     if (this->name == "deck2") {
         posSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::lavender);
         posSlider.setColour(Slider::ColourIds::thumbColourId, Colours::deeppink);
         posSlider.setColour(Slider::ColourIds::rotarySliderFillColourId, Colours::deeppink);
     }
+    // If this is the left hand side deck, sets the colour to be turquouise
     else if (this->name == "deck1") {
         posSlider.setColour(Slider::ColourIds::backgroundColourId, Colours::paleturquoise);
         posSlider.setColour(Slider::ColourIds::thumbColourId, Colours::turquoise);
@@ -147,18 +156,22 @@ void DeckGUI::paint (juce::Graphics& g)
     //g.drawText("DeckGUI", getLocalBounds(), Justification::centred, true);   
 
     if (isPlaying) {
+        // If this is the left hand side deck, sets the colour to be turquoise
         if (this->name == "deck1") {
             playPauseButton.setColours(Colours::turquoise, Colours::paleturquoise, Colours::paleturquoise);
         }
+        // If this is the right hand side deck, sets the colour to be pinkish
         else if (this->name == "deck2") {
             playPauseButton.setColours(Colours::deeppink, Colours::mediumvioletred, Colours::mediumvioletred);
         }
         playPauseButton.setShape(pauseRectangle, false, true, true);
     }
     else {
+        // If this is the left hand side deck, sets the colour to be turquoise
         if (this->name == "deck1") {
             playPauseButton.setColours(Colours::turquoise, Colours::paleturquoise, Colours::paleturquoise);
         }
+        // If this is the right hand side deck, sets the colour to be pinkish
         else if (this->name == "deck2") {
             playPauseButton.setColours(Colours::deeppink, Colours::mediumvioletred, Colours::mediumvioletred);
         }
@@ -189,24 +202,25 @@ void DeckGUI::resized()
     double padding = getWidth() / 30;
 
     // Button locations. Fixed no matter which deck it is in.
-    playPauseButton.setBounds   (columnW * 2, padding       ,  columnW, rowH*1.5-padding*0.5);
-    restartButton.setBounds      (columnW * 2, rowH*1.5+ padding*2, columnW, rowH * 1.5 - padding * 2);
-    loadButton.setBounds        (columnW * 2, rowH*3 + padding*1.5, columnW, rowH * 1.5 - padding * 2);
-    loopButton.setBounds        (columnW * 2, rowH * 4.5 + padding, columnW, rowH * 1.5 - padding * 2);
+    playPauseButton.setBounds   (columnW * 2, rowH*2 + padding       ,  columnW, rowH*1.5-padding*0.5);
+    restartButton.setBounds     (columnW * 2, rowH*3.5+ padding*2, columnW, rowH * 1.5 - padding * 2);
+    loadButton.setBounds        (columnW * 2, rowH*5 + padding*1.5, columnW, rowH * 1.5 - padding * 2);
+    loopButton.setBounds        (columnW * 2, rowH * 6.5 + padding, columnW, rowH * 1.5 - padding * 2);
 
     // Slider locations - varies depending on the deck it is in.
     if (name == "deck1") {
-        speedSlider.setBounds   (columnW,  rowH, columnW, rowH * 5 - padding);
-        volSlider.setBounds     (0      ,  rowH, columnW, rowH * 5 - padding);
-        posSlider.setBounds     (columnW * 3, 0+padding*2, columnW * 2, rowH * 6 - padding);
+        speedSlider.setBounds   (columnW    , rowH*3            , columnW       , rowH * 5 - padding);
+        volSlider.setBounds     (0          , rowH*3            , columnW       , rowH * 5 - padding);
+        posSlider.setBounds     (columnW * 3, rowH*2+padding*2  , columnW * 2   , rowH * 6 - padding);
     }
     else if (name == "deck2") {
-        volSlider.setBounds     (columnW * 4, rowH, columnW, rowH * 5 - padding);
-        speedSlider.setBounds   (columnW * 3, rowH, columnW, rowH * 5 - padding);
-        posSlider.setBounds     (0          , 0 + padding * 2, columnW * 2, rowH * 6 - padding);
+        volSlider.setBounds     (columnW * 4, rowH * 3          , columnW, rowH * 5 - padding);
+        speedSlider.setBounds   (columnW * 3, rowH * 3          , columnW, rowH * 5 - padding);
+        posSlider.setBounds     (0          , rowH * 2 + padding*2, columnW * 2, rowH * 6 - padding);
     }
 
-    waveformDisplay.setBounds(0, rowH * 6, getWidth(), rowH * 2);
+    // Waveform Display location
+    waveformDisplay.setBounds(0, 0, getWidth(), rowH * 2);
 }
 
 

@@ -74,7 +74,6 @@ class PlaylistComponent  : public juce::Component,
         void buttonClicked(Button* button) override;
 
 
-        //void printTitles();
 
     private:
 
@@ -94,9 +93,11 @@ class PlaylistComponent  : public juce::Component,
         std::vector <double> tempTrackLengths;
         std::vector <URL> tempTrackURLs;
 
-        // Where user can key in values
+        // Creates a searchbox where user can key in values
         TextEditor searchBox;
+        // Creates a searchbutton where user can initialize search
         TextButton searchButton{ "SEARCH" };
+        // Creates a clearSearch button where user can clear search
         TextButton clearSearchButton{ "CLEAR SEARCH" };
 
         // MACRO

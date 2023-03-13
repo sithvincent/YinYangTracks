@@ -40,8 +40,10 @@ class DeckGUI  :public Component,
 
     private:
 
+        // Stores the name of the deck (ie. Deck 1 or Deck 2)
         String name;
-        // Buttons and Sliders
+
+        // Creates all the Button and Slider objects
         TextButton restartButton{ "RESTART" };
         TextButton loadButton{ "LOAD" };
         TextButton loopButton{ "LOOP" };
@@ -50,16 +52,22 @@ class DeckGUI  :public Component,
         Slider speedSlider{ Slider::SliderStyle::LinearVertical , Slider::TextEntryBoxPosition::TextBoxAbove };;
         Slider posSlider{ Slider::SliderStyle::Rotary  , Slider::TextEntryBoxPosition::NoTextBox };;
 
+        // Creates the labels attached to the sliders
         Label volLabel;
         Label speedLabel;
         Label posLabel;
 
-
+        // Creates the shapes for the custom playbutton that changes shape depending on the status of the track 
         Path playTriangle;
         Path pauseRectangle;
+
+        // Creates the booleans that can control the behaviour of the deck depending on whether the music is
+        // playing, looping or a track is loaded into the deck
         bool isPlaying;
         bool isLooping;
         bool isLoaded;
+
+        // Stores the length of the input audio file in seconds
         double vidLength;
 
         // We don't create a player, just a pointer to a player

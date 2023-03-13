@@ -27,19 +27,28 @@ class DJAudioPlayer : public AudioSource
         void releaseResources() override;
 
         //=======================SLIDERS===================================
+        // Sets and returns the current volume of the track respectively
         void setGain(double gain);
         double getGain();
+
+        // Sets and returns the playback speed of the track respectively
         void setSpeed(double ratio);
         double getSpeed();
+
+        // Sets and returns the current playback position of the track respectively
         void setPosition(double posInSecs);
         void setPositionRelative(double pos);        
 
         //=======================AUXILLIARY FUNCTIONS======================
+        // 
+        // Start, stops and loops the music
         void start();
         void stop();
         void toggleLoop(bool shouldLoop);
+
         // Loads the actual file and puts it in transport source
         void loadURL(URL audioURL, double& vidLength);
+
         /**Get the relative position of the playhead */
         double getPositionRelative();
         bool trackFinished();
